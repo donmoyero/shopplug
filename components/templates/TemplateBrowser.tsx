@@ -7,7 +7,7 @@ import { stepUrl } from "@/lib/onboarding";
 import { SITE_TEMPLATES, TEMPLATE_CATEGORIES, categoryFor, templateDemoUrl, type SiteTemplate } from "@/lib/site-templates";
 
 const ALL = "All";
-const PAGE = 8;
+const PAGE = 4; // four big templates per page
 
 /**
  * The Templates page: every website template, grouped by business type. Click a card to open the whole site (every page, working menu
@@ -16,16 +16,21 @@ const PAGE = 8;
 export default function TemplateBrowser({ initialCategory }: { initialCategory?: string }) {
   const start = categoryFor(initialCategory) || ALL;
   const [tab, setTab] = useState<string>(start);
-  const [shown, setShown] = useState(PAGE);
+  const [page, setPage] = useState(0);
   const [openId, setOpenId] = useState<string | null>(null);
 
   const list = useMemo(() => (tab === ALL ? SITE_TEMPLATES : SITE_TEMPLATES.filter((t) => t.category === tab)), [tab]);
-  const visible = list.slice(0, shown);
+  const pages = Math.max(1, Math.ceil(list.length / PAGE));
+  const visible = list.slice(page * PAGE, page * PAGE + PAGE);
   const hint = tab === ALL ? null : TEMPLATE_CATEGORIES.find((c) => c.label === tab)?.hint;
   const openAt = openId ? list.findIndex((t) => t.id === openId) : -1;
   const open = openAt >= 0 ? list[openAt] : null;
 
-  const pickTab = (t: string) => { setTab(t); setShown(PAGE); };
+  const pickTab = (t: string) => { setTab(t); setPage(0); };
+  const goPage = (n: number) => {
+    setPage(Math.min(pages - 1, Math.max(0, n)));
+    document.getElementById("templates")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
   const close = useCallback(() => setOpenId(null), []);
   const step = useCallback((dir: -1 | 1) => {
     if (openAt < 0) return;
@@ -57,18 +62,20 @@ export default function TemplateBrowser({ initialCategory }: { initialCategory?:
         </div>
         <p className="mt-3 min-h-[1.25rem] text-xs text-slateLight" aria-live="polite">{hint ? `${hint} · ${list.length} templates` : `${list.length} templates`}</p>
 
-        <div className="mt-4 grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" role="tabpanel">
+        <div className="mt-4 grid gap-8 sm:grid-cols-2" role="tabpanel">
           {visible.map((t) => (
-            <TemplateCard key={t.id} t={t} showCategory={tab === ALL} onOpen={() => setOpenId(t.id)} />
+            <TemplateCard key={t.id} t={t} big showCategory={tab === ALL} onOpen={() => setOpenId(t.id)} />
           ))}
         </div>
 
-        {shown < list.length && (
-          <div className="mt-10 flex justify-center">
-            <button type="button" onClick={() => setShown((n) => n + PAGE)} className="inline-flex items-center gap-2 rounded-full border border-line2 bg-ink2 px-6 py-3 text-sm font-medium transition-colors hover:border-paper">
-              Show more <span className="text-slateLight">({list.length - shown} left)</span>
-            </button>
-          </div>
+        {pages > 1 && (
+          <nav className="mt-12 flex flex-wrap items-center justify-center gap-2" aria-label="Template pages">
+            <button type="button" onClick={() => goPage(page - 1)} disabled={page === 0} className="inline-flex items-center gap-1 rounded-full border border-line2 bg-ink2 px-4 py-2 text-sm transition-colors hover:border-paper disabled:opacity-40"><ChevronLeft className="h-4 w-4" />Previous</button>
+            {Array.from({ length: pages }, (_, i) => (
+              <button key={i} type="button" onClick={() => goPage(i)} aria-label={`Page ${i + 1}`} aria-current={i === page ? "page" : undefined} className={`grid h-10 w-10 place-items-center rounded-full border text-sm transition-colors ${i === page ? "border-paper bg-paper text-white" : "border-line2 bg-ink2 text-slate hover:border-paper"}`}>{i + 1}</button>
+            ))}
+            <button type="button" onClick={() => goPage(page + 1)} disabled={page >= pages - 1} className="inline-flex items-center gap-1 rounded-full border border-line2 bg-ink2 px-4 py-2 text-sm transition-colors hover:border-paper disabled:opacity-40">Next<ChevronRight className="h-4 w-4" /></button>
+          </nav>
         )}
       </div>
 
@@ -78,7 +85,7 @@ export default function TemplateBrowser({ initialCategory }: { initialCategory?:
 }
 
 /** One template card: picture, brand, tagline and page count. Opens the preview window when clicked. */
-export function TemplateCard({ t, showCategory, onOpen }: { t: SiteTemplate; showCategory?: boolean; onOpen: () => void }) {
+export function TemplateCard({ t, showCategory, big, onOpen }: { t: SiteTemplate; showCategory?: boolean; big?: boolean; onOpen: () => void }) {
   return (
     <button type="button" onClick={onOpen} aria-label={`Preview ${t.brand}, ${t.category}`} className="group text-left">
       <span className="relative block aspect-[16/10] overflow-hidden rounded-2xl border border-line bg-sand shadow-soft transition group-hover:border-paper group-hover:shadow-lift">
@@ -88,10 +95,10 @@ export function TemplateCard({ t, showCategory, onOpen }: { t: SiteTemplate; sho
         </span>
       </span>
       <span className="mt-3 flex items-baseline justify-between gap-3">
-        <span className="font-display text-lg leading-tight">{t.brand}</span>
+        <span className={`font-display leading-tight ${big ? "text-2xl" : "text-lg"}`}>{t.brand}</span>
         <span className="shrink-0 font-mono text-[11px] text-slateLight">{t.pages} {t.pages === 1 ? "page" : "pages"}</span>
       </span>
-      <span className="mt-0.5 block text-sm text-slate">{t.tagline}</span>
+      <span className={`mt-0.5 block text-slate ${big ? "text-base" : "text-sm"}`}>{t.tagline}</span>
       {showCategory && <span className="mt-1 block label-tag text-slateLight">{t.category}</span>}
     </button>
   );
