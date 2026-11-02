@@ -6,7 +6,10 @@ import AccountStep from "../_components/AccountStep";
 export const metadata = { title: "Create your account | ShopPlug", robots: { index: false } };
 export const dynamic = "force-dynamic";
 
-export default async function AccountPage({ searchParams }: { searchParams: Record<string, string | string[] | undefined> }) {
+export default async function AccountPage(
+  props: { searchParams: Promise<Record<string, string | string[] | undefined>> }
+) {
+  const searchParams = await props.searchParams;
   const answers = answersFromParams(searchParams);
   const missing = firstMissingStep(3, answers);
   if (missing !== null) redirect(stepUrl(missing, answers));

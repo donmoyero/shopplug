@@ -4,7 +4,10 @@ import GoalStep from "../_components/GoalStep";
 
 export const metadata = { title: "Your goal | ShopPlug", robots: { index: false } };
 
-export default function GoalPage({ searchParams }: { searchParams: Record<string, string | string[] | undefined> }) {
+export default async function GoalPage(
+  props: { searchParams: Promise<Record<string, string | string[] | undefined>> }
+) {
+  const searchParams = await props.searchParams;
   const answers = answersFromParams(searchParams);
   const missing = firstMissingStep(1, answers);
   if (missing !== null) redirect(stepUrl(missing, answers));

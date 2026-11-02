@@ -6,7 +6,10 @@ import { safeDestination } from "@/lib/platform";
 export const metadata = { title: "Sign in | ShopPlug", robots: { index: false } };
 export const dynamic = "force-dynamic";
 
-export default async function LoginPage({ searchParams }: { searchParams: { next?: string; error?: string; mode?: string } }) {
+export default async function LoginPage(
+  props: { searchParams: Promise<{ next?: string; error?: string; mode?: string }> }
+) {
+  const searchParams = await props.searchParams;
   // Old "?mode=signup" links: creating an account now only happens through Get started.
   if (searchParams.mode === "signup") redirect("/get-started");
 
