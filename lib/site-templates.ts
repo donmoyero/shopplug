@@ -1,6 +1,6 @@
 // The 120 website templates (uiuxlabz collection) and the 18 business categories they are grouped into.
 // The categories ARE the business types people pick when they sign up, so a business only ever sees templates for its own type.
-// Each template is a finished multi-page site. Its live demo is served by our own GitHub Pages site (repo donmoyero/impactgrid-templates); the card image is a JPEG kept in /public/templates.
+// Each template is a finished multi-page site. Its live demo is served by our own GitHub Pages site (repo donmoyero/shopplug-template); the card image is a JPEG kept in /public/templates.
 
 export type TemplateCategory = { label: string; hint: string };
 export type SiteTemplate = { id: string; slug: string; brand: string; tagline: string; category: string; pages: number; thumb: string };
@@ -27,7 +27,7 @@ export const TEMPLATE_CATEGORIES: readonly TemplateCategory[] = [
 ];
 
 /** Where the live demos are served from: <base>/<category>/<slug>-main/. Change it if the templates move to another host. */
-export const TEMPLATE_DEMO_BASE = (process.env.NEXT_PUBLIC_TEMPLATE_DEMO_BASE ?? "https://donmoyero.github.io/impactgrid-templates").replace(/\/+$/, "");
+export const TEMPLATE_DEMO_BASE = (process.env.NEXT_PUBLIC_TEMPLATE_DEMO_BASE ?? "https://donmoyero.github.io/shopplug-template").replace(/\/+$/, "");
 
 const T = (category: string, id: string, slug: string, brand: string, tagline: string, pages: number, thumb = `/templates/${slug}.jpg`): SiteTemplate => ({ id, slug, brand, tagline, category, pages, thumb });
 

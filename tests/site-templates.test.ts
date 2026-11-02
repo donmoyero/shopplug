@@ -21,7 +21,7 @@ test("every template has a card image in /public/templates", () => {
 });
 
 test("demo address is <host>/<category>/<slug>-main/ and category lookup is exact", () => {
-  assert.equal(templateDemoUrl({ slug: "hair-salon-html-template", category: "Beauty & Wellness" }), "https://donmoyero.github.io/impactgrid-templates/Beauty%20%26%20Wellness/hair-salon-html-template-main/");
+  assert.equal(templateDemoUrl({ slug: "hair-salon-html-template", category: "Beauty & Wellness" }), "https://donmoyero.github.io/shopplug-template/Beauty%20%26%20Wellness/hair-salon-html-template-main/");
   assert.equal(categoryFor("Beauty & Wellness"), "Beauty & Wellness");
   assert.equal(categoryFor("constructor"), "");
   assert.equal(isTemplateCategory("Beauty"), false);
