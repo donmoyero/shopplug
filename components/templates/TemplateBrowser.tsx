@@ -108,10 +108,17 @@ export function Thumb({ t }: { t: SiteTemplate }) {
 export function PreviewWindow({ t, total, onClose, onStep }: { t: SiteTemplate; total: number; onClose: () => void; onStep: (dir: -1 | 1) => void }) {
   const [mobile, setMobile] = useState(false);
   const [loaded, setLoaded] = useState(false);
+  const [slow, setSlow] = useState(false);
   const closeRef = useRef<HTMLButtonElement>(null);
   const url = templateDemoUrl(t);
 
-  useEffect(() => { setLoaded(false); }, [t.id, mobile]);
+  // If the demo has not reported back after 8 seconds, say so and offer the new-tab link instead of an endless "Loading".
+  useEffect(() => {
+    setLoaded(false);
+    setSlow(false);
+    const timer = window.setTimeout(() => setSlow(true), 8000);
+    return () => window.clearTimeout(timer);
+  }, [t.id, mobile]);
 
   // Latest handlers live in a ref so the listener and scroll lock are set up once, when the window opens, and focus returns to the card that opened it.
   const handlers = useRef({ onClose, onStep, total });
@@ -157,13 +164,16 @@ export function PreviewWindow({ t, total, onClose, onStep }: { t: SiteTemplate; 
         </div>
 
         <div className="relative min-h-0 flex-1 bg-sand/60">
-          {!loaded && <p className="absolute inset-0 grid place-items-center text-sm text-slateLight" aria-live="polite">Loading preview…</p>}
+          {!loaded && (
+            <p className="absolute inset-0 grid place-items-center px-6 text-center text-sm text-slateLight" aria-live="polite">
+              {slow ? "This preview is taking a while to load. Try “Open in new tab” below." : "Loading preview…"}
+            </p>
+          )}
           <div className={`mx-auto h-full ${mobile ? "w-[390px] max-w-full border-x border-line2 bg-white shadow-soft" : "w-full"}`}>
             <iframe
               key={`${t.id}-${mobile}`}
               src={url}
               title={`${t.brand} website preview`}
-              loading="lazy"
               referrerPolicy="no-referrer"
               sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
               onLoad={() => setLoaded(true)}
@@ -171,6 +181,9 @@ export function PreviewWindow({ t, total, onClose, onStep }: { t: SiteTemplate; 
             />
           </div>
         </div>
+
+        {/* ShopPlug footer shown directly under every template preview. */}
+        <p className="border-t border-line bg-white px-4 py-2 text-center text-xs text-slateLight">© {new Date().getFullYear()} ShopPlug. All rights reserved.</p>
 
         <div className="flex flex-wrap items-center justify-between gap-3 border-t border-line px-4 py-3">
           <p className="max-w-xl text-xs text-slateLight">Sample content. Once you sign up, the template is filled with your own business name, services and photos.</p>
