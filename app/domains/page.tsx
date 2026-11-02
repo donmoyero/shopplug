@@ -5,7 +5,8 @@ export const metadata = {
   description: "Search for the perfect domain name for your business.",
 };
 
-export default function DomainsPage({ searchParams }: { searchParams?: { paid?: string } }) {
+export default async function DomainsPage(props: { searchParams?: Promise<{ paid?: string }> }) {
+  const searchParams = await props.searchParams;
   return (
     <main className="mx-auto max-w-4xl px-6 py-20 lg:px-10 lg:py-28">
       <p className="eyebrow">Domains</p>

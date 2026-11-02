@@ -1,12 +1,13 @@
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
-import { cookies } from "next/headers";
+import { cookies, type UnsafeUnwrappedCookies } from "next/headers";
 import { cookieOptions } from "@/lib/supabase/cookie";
 
 /**
  * Use inside Server Components, Route Handlers, and Server Actions.
  */
 export function createClient() {
-  const cookieStore = cookies();
+  const cookieStore = (/* @next-codemod-ignore Await this API and update its callers; remove the temporary UnsafeUnwrappedCookies cast after repairing the migration. */
+  cookies() as unknown as UnsafeUnwrappedCookies);
 
   return createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
